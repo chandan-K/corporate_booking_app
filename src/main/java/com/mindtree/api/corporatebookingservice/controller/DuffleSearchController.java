@@ -67,7 +67,6 @@ public class DuffleSearchController {
 //		System.out.println(Jso);
 //		OfferResponse offerResponse = ndcDuffelServiceProxyClient.search(offerRequest);
 		OfferResponse offerResponse = null;
-		ResponseEntity<List<OfferPack>> responseEntity = null;
 		try {
 			 offerResponse = ndcDuffelServiceProxyClient.search(offerRequest);
 		}
@@ -149,9 +148,9 @@ public class DuffleSearchController {
 			String[] arrivalDateTime = nDCSlice.getSegments().get(0).getArrivingAt().split("T");
 			flightItinerary.setArrivalTime(arrivalDateTime[1].substring(0, 5));
 			flightItinerary.setArrivalOffset(calculateArrivalOffset(departureDateTime[0], arrivalDateTime[0]));
-			Random rand = new Random();
-			Integer journeyDuration = rand.nextInt(350) + 400;
-			flightItinerary.setJourneyDuration(journeyDuration);
+//			Random rand = new Random();
+//			Integer journeyDuration = rand.nextInt(350) + 400;
+			flightItinerary.setJourneyDuration(nDCSlice.getDuration().substring(2));
 			
 			Iterator<String> itr = flightItinerary.getAirlineCodes().iterator();
 			if(itr.hasNext()) {
@@ -200,17 +199,18 @@ public class DuffleSearchController {
 			List<String> layoverAirportname = new ArrayList<String>();
 			int count = 1;
 			for (Segment segment : nDCSlice.getSegments()) {
-				airlineCodes.add(segment.getOperatingCarrier().getIataCode());
-				airlineNames.add(segment.getOperatingCarrier().getName());
+				airlineCodes.add(segment.getMarketingCarrier().getIataCode());
+				airlineNames.add(segment.getMarketingCarrier().getName());
 				FlightInfo flightInfo = new FlightInfo();
 				flightInfo.setAircraft(segment.getAircraft().getName());
-				flightInfo.setAirlineCode(segment.getOperatingCarrier().getIataCode());
-				flightInfo.setAirlineName(segment.getOperatingCarrier().getName());
+				flightInfo.setAirlineCode(segment.getMarketingCarrier().getIataCode());
+				flightInfo.setAirlineName(segment.getMarketingCarrier().getName());
 				if(segment.getOperatingCarrierFlightNumber() != null) {
-					flightInfo.setFlightNo(segment.getOperatingCarrierFlightNumber());
+					flightInfo.setFlightNo(segment.getMarketingCarrierFlightNumber());
 				}
 				else {
-					flightInfo.setFlightNo(segment.getMarketingCarrierFlightNumber());
+					flightInfo.setFlightNo(segment.getOperatingCarrierFlightNumber());
+					
 				}
 				
 				flightInfo.setOriginPoint(segment.getOrigin().getIataCode());
@@ -225,9 +225,10 @@ public class DuffleSearchController {
 				flightInfo.setDestinationPoint(segment.getDestination().getIataCode());
 				flightInfo.setDestinationCountry(segment.getDestination().getIataCountryCode());
 				flightInfo.setDestinationAirportName(segment.getDestination().getName());
-				Random rand = new Random();
-				Integer flightDuration = rand.nextInt(480) + 220;
-				flightInfo.setFlightDuration(flightDuration);
+				
+//				Random rand = new Random();
+//				Integer flightDuration = rand.nextInt(480) + 220;
+				flightInfo.setFlightDuration(segment.getDuration().substring(2));
 				
 				String[] arrivalDateTime = segment.getArrivingAt().split("T");
 				

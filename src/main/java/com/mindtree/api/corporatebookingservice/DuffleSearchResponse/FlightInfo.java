@@ -27,7 +27,7 @@ public class FlightInfo {
 	 private Date arrivalDate;
 	 private String arrivalTime;
 	 private String arrivalOffset;
-	 private Integer flightDuration;
+	 private String flightDuration;
 	/**
 	 * @return the airlineCode
 	 */
@@ -199,22 +199,22 @@ public class FlightInfo {
 		this.arrivalTime = arrivalTime;
 	}
 	/**
+	 * @return the departureOffset
+	 */
+	public Integer getDepartureOffset() {
+		return departureOffset;
+	}
+	/**
 	 * @return the flightDuration
 	 */
-	public Integer getFlightDuration() {
+	public String getFlightDuration() {
 		return flightDuration;
 	}
 	/**
 	 * @param flightDuration the flightDuration to set
 	 */
-	public void setFlightDuration(Integer flightDuration) {
+	public void setFlightDuration(String flightDuration) {
 		this.flightDuration = flightDuration;
-	}
-	/**
-	 * @return the departureOffset
-	 */
-	public Integer getDepartureOffset() {
-		return departureOffset;
 	}
 	/**
 	 * @param departureOffset the departureOffset to set
