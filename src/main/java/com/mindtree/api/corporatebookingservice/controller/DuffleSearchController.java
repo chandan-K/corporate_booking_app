@@ -113,12 +113,16 @@ public class DuffleSearchController {
 
 	private Fare populateFareDetails(Offer offer) {
 		Fare fare = new Fare();
-		fare.setBaseFare(Double.valueOf(offer.getBaseAmount()));
-		fare.setTaxes(Double.valueOf(offer.getTaxAmount()));
-		fare.setTotal(Double.valueOf(offer.getTotalAmount()));
+		fare.setBaseFare(convertStringTointeger(offer.getBaseAmount()));
+		fare.setTaxes(convertStringTointeger(offer.getTaxAmount()));
+		fare.setTotal(convertStringTointeger(offer.getTotalAmount()));
 		return fare;
 	}
 	
+	private int convertStringTointeger(String amount) {
+		return amount == null ? 0 : Math.round(Float.valueOf(amount));
+		
+	}
 	/**
 	 * 
 	 * @param nDCSlice
