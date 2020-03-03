@@ -9,6 +9,19 @@ public class BookingRequest {
     private String adults;
     private String children;
     private String infants;
+    private String class_;
+	/**
+	 * @return the class_
+	 */
+	public String getClass_() {
+		return class_;
+	}
+	/**
+	 * @param class_ the class_ to set
+	 */
+	public void setClass_(String class_) {
+		this.class_ = class_;
+	}
 	/**
 	 * @return the from
 	 */

@@ -5,6 +5,9 @@ package com.mindtree.api.corporatebookingservice.DuffleSearchResponse;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.mindtree.api.corporatebookingservice.DuffleSearchRequest.JsonDateSerializer;
+
 /**
  * @author M1026334
  *
@@ -18,12 +21,14 @@ public class FlightInfo {
 	 private String originPoint;
 	 private String originCountry;
 	 private String originAirportName;
+	 @JsonSerialize(using=JsonDateSerializer.class)
 	 private Date departureDate;
 	 private String departureTime;
 	 private Integer departureOffset;
 	 private String destinationPoint;
 	 private String destinationCountry;
 	 private String destinationAirportName;
+	 @JsonSerialize(using=JsonDateSerializer.class)
 	 private Date arrivalDate;
 	 private String arrivalTime;
 	 private String arrivalOffset;

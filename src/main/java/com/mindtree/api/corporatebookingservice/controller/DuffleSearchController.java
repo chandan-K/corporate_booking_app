@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +39,8 @@ import com.mindtree.api.corporatebookingservice.DuffleSearchResponse.OfferRespon
 import com.mindtree.api.corporatebookingservice.DuffleSearchResponse.SearchFlightResponse;
 import com.mindtree.api.corporatebookingservice.DuffleSearchResponse.Segment;
 import com.mindtree.api.corporatebookingservice.dtos.BookingRequest;
+import com.mindtree.api.corporatebookingservice.exception.FlightNotFoundException;
+import com.mindtree.api.corporatebookingservice.exception.NDCServiceGatewayException;
 import com.mindtree.api.corporatebookingservice.ndcclient.NDCDuffelServiceProxyClient;
 
 
@@ -62,21 +63,26 @@ public class DuffleSearchController {
 	}
 
 	@PostMapping("/duffelsearch")
-    public ResponseEntity<List<OfferPack>> search(@RequestBody BookingRequest bookingRequest) {
+    public ResponseEntity<List<OfferPack>> search(@RequestBody BookingRequest bookingRequest) 
+    		throws NDCServiceGatewayException, FlightNotFoundException {
 		OfferRequest offerRequest = constructDuffleSearchRequest(bookingRequest);
 //		System.out.println(Jso);
 //		OfferResponse offerResponse = ndcDuffelServiceProxyClient.search(offerRequest);
-		OfferResponse offerResponse = null;
+		SearchFlightResponse results = null;
 		try {
-			 offerResponse = ndcDuffelServiceProxyClient.search(offerRequest);
+			OfferResponse offerResponse = ndcDuffelServiceProxyClient.search(offerRequest);
+			results = constructResponse(offerResponse);
+		}
+		catch (FlightNotFoundException e) {
+			e.printStackTrace();
+			 throw e;
+			 
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			 throw new NDCServiceGatewayException("Oops!!!Something went worng...");
 			 
 		}
-        
-       SearchFlightResponse results = constructResponse(offerResponse);
 	   return new ResponseEntity<>(results.getOfferPackages(), HttpStatus.OK);
 		
 	}
@@ -85,11 +91,13 @@ public class DuffleSearchController {
 	 * 
 	 * @param offerResponse
 	 * @return
+	 * @throws FlightNotFoundException 
 	 */
-	private SearchFlightResponse constructResponse(OfferResponse offerResponse) {
-		SearchFlightResponse searchFlightResponse = new SearchFlightResponse(); 
+	private SearchFlightResponse constructResponse(OfferResponse offerResponse) throws FlightNotFoundException {
+		SearchFlightResponse searchFlightResponse = null; 
 		List<Offer> offers = offerResponse.getData().getOffers();
 		if(offers != null && !offers.isEmpty()) {
+			searchFlightResponse = new SearchFlightResponse();
 			List<OfferPack> offerPacks = new ArrayList<OfferPack>();
 			for(Offer offer : offers) {
 				OfferPack offerPack = new OfferPack();
@@ -104,9 +112,12 @@ public class DuffleSearchController {
 				offerPacks.add(offerPack);
 				searchFlightResponse.setOfferPackages(offerPacks);
 			}
-			
+			return searchFlightResponse;
 		}
-		return searchFlightResponse;
+		else {
+			
+			throw new FlightNotFoundException("No flight found!!!");
+		}
 	}
 
 
@@ -209,7 +220,7 @@ public class DuffleSearchController {
 				flightInfo.setAircraft(segment.getAircraft().getName());
 				flightInfo.setAirlineCode(segment.getMarketingCarrier().getIataCode());
 				flightInfo.setAirlineName(segment.getMarketingCarrier().getName());
-				if(segment.getOperatingCarrierFlightNumber() != null) {
+				if(segment.getMarketingCarrierFlightNumber() != null) {
 					flightInfo.setFlightNo(segment.getMarketingCarrierFlightNumber());
 				}
 				else {
@@ -329,7 +340,12 @@ public class DuffleSearchController {
         //Set data property
         requestData.setSlices(slices);
         requestData.setPassengers(passengers);
-        requestData.setCabinClass("economy");
+        if(bookingRequest.getClass_().equalsIgnoreCase("B")) {
+        	requestData.setCabinClass("business");
+        }
+        else {
+        	requestData.setCabinClass("economy");
+        }
         //data.setAdditionalProperty("", new Object());
 
         offerRequest.setData(requestData);
